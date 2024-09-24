@@ -48,4 +48,4 @@ st.altair_chart(chart, use_container_width=True)
 
 # Display raw data
 st.subheader('Raw data')
-st.write(filtered_df)
+st.dataframe(filtered_df, use_container_width=True)
