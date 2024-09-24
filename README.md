@@ -42,7 +42,7 @@ The expense reporting system consists of the following components:
 
 The Streamlit application presents an Expense Report Dashboard with the following features:
 
-![Expense Report Dashboard](https://example.com/path/to/dashboard-image.png)
+![Expense Report Dashboard](App-Screenshot.png)
 
 Key components of the dashboard:
 
