@@ -1,28 +1,51 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
+import altair as alt
 
+# Load the data
+@st.cache_data
+def load_data():
+    df = pd.read_csv('expense-report-2024-09-23T20-59-19Z.csv')
+    df['Date'] = pd.to_datetime(df['Date'])
+    return df
 
-st.set_page_config(
-    page_title="Expense Dashboard",
-    page_icon="🎈",
-    layout="wide",
-    initial_sidebar_state="expanded")
+df = load_data()
 
-st.title("🎈 Expense Dashboard")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
+# Calculate KPIs
+total_expenses = df['Amount'].sum()
+avg_expenses_per_employee = df.groupby('Name')['Amount'].sum().mean()
+highest_spender = df.groupby('Name')['Amount'].sum().idxmax()
+highest_spender_amount = df.groupby('Name')['Amount'].sum().max()
+
+# Display KPIs
+st.header('Expense Report Dashboard')
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Expenses", f"${total_expenses:.2f}")
+col2.metric("Avg Expenses by Employee", f"${avg_expenses_per_employee:.2f}")
+col3.metric(f"Highest Spender: {highest_spender}", f"${highest_spender_amount:.2f}")
+
+# Employee filter
+employees = ['All'] + list(df['Name'].unique())
+selected_employee = st.selectbox('Select Employee', employees)
+
+# Filter data based on selected employee
+if selected_employee != 'All':
+    filtered_df = df[df['Name'] == selected_employee]
+else:
+    filtered_df = df
+
+# Create bar chart
+chart_data = filtered_df.groupby('Category')['Amount'].sum().reset_index()
+chart = alt.Chart(chart_data).mark_bar().encode(
+    x='Category',
+    y='Amount',
+    color='Category'
+).properties(
+    title='Expenses by Category'
 )
 
-df = pd.read_csv('/workspaces/Expense-Report-Dashboard/expense-report-2024-09-23T20-59-19Z.csv')
+st.altair_chart(chart, use_container_width=True)
 
-st.dataframe(df)
-
-
-st.bar_chart(df[['Date', 'Category', 'Amount']],
-             x='Category',
-             y='Amount')
-
-st.bar_chart(df[['Date', 'Name', 'Amount']],
-             x='Name',
-             y='Amount')
+# Display raw data
+st.subheader('Raw data')
+st.write(filtered_df)
