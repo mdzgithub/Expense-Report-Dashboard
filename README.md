@@ -1,5 +1,7 @@
 # Expense Report System Documentation
 
+## [Link to Dashboard](https://expense-report-dash.streamlit.app/)
+
 ## Overview
 
 This document outlines the architecture and components of our expense reporting system. The system generates pseudo expense reports, processes the data, and presents it in a Streamlit application dashboard.
