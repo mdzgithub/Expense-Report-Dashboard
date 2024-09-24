@@ -6,7 +6,7 @@ import altair as alt
 @st.cache_data
 def load_data():
     df = pd.read_csv('expense-report-2024-09-23T20-59-19Z.csv')
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%Y-%m-%d')
     return df
 
 df = load_data()
