@@ -6,16 +6,34 @@ import altair as alt
 @st.cache_data
 def load_data():
     df = pd.read_csv('expense-report-2024-09-23T20-59-19Z.csv')
-    df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%Y-%m-%d')
+    df['Date'] = pd.to_datetime(df['Date'])
     return df
 
 df = load_data()
 
+# Sidebar
+st.sidebar.header('Filters')
+
+# Date range filter
+min_date = df['Date'].min().date()
+max_date = df['Date'].max().date()
+start_date = st.sidebar.date_input('Start date', min_date)
+end_date = st.sidebar.date_input('End date', max_date)
+
+# Employee filter
+employees = ['All'] + list(df['Name'].unique())
+selected_employee = st.sidebar.selectbox('Select Employee', employees)
+
+# Filter data based on date range and selected employee
+filtered_df = df[(df['Date'].dt.date >= start_date) & (df['Date'].dt.date <= end_date)]
+if selected_employee != 'All':
+    filtered_df = filtered_df[filtered_df['Name'] == selected_employee]
+
 # Calculate KPIs
-total_expenses = df['Amount'].sum()
-avg_expenses_per_employee = df.groupby('Name')['Amount'].sum().mean()
-highest_spender = df.groupby('Name')['Amount'].sum().idxmax()
-highest_spender_amount = df.groupby('Name')['Amount'].sum().max()
+total_expenses = filtered_df['Amount'].sum()
+avg_expenses_per_employee = filtered_df.groupby('Name')['Amount'].sum().mean()
+highest_spender = filtered_df.groupby('Name')['Amount'].sum().idxmax()
+highest_spender_amount = filtered_df.groupby('Name')['Amount'].sum().max()
 
 # Display KPIs
 st.header('Expense Report Dashboard')
@@ -23,16 +41,6 @@ col1, col2, col3 = st.columns(3)
 col1.metric("Total Expenses", f"${total_expenses:.2f}")
 col2.metric("Avg Expenses by Employee", f"${avg_expenses_per_employee:.2f}")
 col3.metric(f"Highest Spender: {highest_spender}", f"${highest_spender_amount:.2f}")
-
-# Employee filter
-employees = ['All'] + list(df['Name'].unique())
-selected_employee = st.selectbox('Select Employee', employees)
-
-# Filter data based on selected employee
-if selected_employee != 'All':
-    filtered_df = df[df['Name'] == selected_employee]
-else:
-    filtered_df = df
 
 # Create bar chart
 chart_data = filtered_df.groupby('Category')['Amount'].sum().reset_index()
