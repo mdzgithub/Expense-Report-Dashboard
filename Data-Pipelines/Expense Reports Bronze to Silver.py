@@ -1,6 +1,6 @@
 # Databricks notebook source
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, regexp_replace, to_date
 
 # COMMAND ----------
 
@@ -30,11 +30,27 @@ silver_table = bronze_table.filter(*constraints)
 
 # COMMAND ----------
 
+silver_table = silver_table.withColumn("Amount", 
+                             regexp_replace(col("Amount"), "\\$", "").cast("double"))
+
+silver_table = silver_table.withColumn(
+    "Date", 
+    to_date(col("Date"), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+)
+
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC DROP TABLE default.expense_silver
+
+# COMMAND ----------
+
 silver_table.write.mode("overwrite").saveAsTable("expense_silver")
 
 # COMMAND ----------
 
-silver_table.show()
+silver_table.display()
 
 # COMMAND ----------
 
