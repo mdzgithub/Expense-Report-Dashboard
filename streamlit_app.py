@@ -1,13 +1,42 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import config
+from databricks import sql
 
 # Load the data
 @st.cache_data
 def load_data():
-    df = pd.read_csv('expense-report-2024-09-23T20-59-19Z.csv')
-    df['Date'] = pd.to_datetime(df['Date'])
-    return df
+    try:
+        connection = sql.connect(
+            server_hostname=config.server_hostname,
+            http_path=config.http_path,
+            access_token=config.access_token
+        )
+
+        # Use pandas to read SQL query directly into a DataFrame
+        df = pd.read_sql("SELECT * FROM hive_metastore.default.expense_gold", connection)
+        
+        # Convert 'Date' column to datetime
+        df['Date'] = pd.to_datetime(df['Date'])
+        
+        return df
+
+    except Exception as e:
+        st.error(f"An error occurred while loading data: {str(e)}")
+        return pd.DataFrame()  # Return an empty DataFrame in case of error
+    
+    finally:
+        if 'connection' in locals():
+            connection.close()
+
+# Load data
+df = load_data()
+
+# Check if the DataFrame is empty
+if df.empty:
+    st.warning("No data available. Please check your database connection and query.")
+    st.stop()  # Stop the app here if there's no data
 
 df = load_data()
 
