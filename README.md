@@ -48,9 +48,9 @@ The Streamlit application presents an Expense Report Dashboard with the followin
 
 Key components of the dashboard:
 
-1. **Total Expenses**: Displays the sum of all expenses ($1789.70 in the example).
-2. **Average Expenses by Employee**: Shows the mean expense amount per employee ($596.57 in the example).
-3. **Highest Spender**: Identifies the employee with the highest total expenses (Mary, $852.49 in the example).
+1. **Total Expenses**: Displays the sum of all expenses.
+2. **Average Expenses by Employee**: Shows the mean expense amount per employee.
+3. **Highest Spender**: Identifies the employee with the highest total expenses.
 4. **Employee Selector**: Allows filtering of data by specific employee or viewing all employees.
 5. **Expenses by Category**: A bar chart breaking down expenses into categories (food, supplies, travel).
 
